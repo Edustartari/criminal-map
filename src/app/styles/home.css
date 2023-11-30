@@ -1,4 +1,91 @@
-.test {
-    background-color: red;
-    color: red;
+.criminal-map-main-background{
+
+}
+.criminal-map-main-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #37474f;
+    padding: 20px 0;
+    font-size: 35px;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: white;
+    letter-spacing: 1.5px;
+}
+.criminal-map-main-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.criminal-map-stats{
+    margin: 30px 20px 0 0;
+}
+.criminal-map-stats-options{
+
+}
+.criminal-map-stats-options-buttons{
+    display: flex;
+    border-bottom: 2px solid #c62828;
+}
+.criminal-map-stats-options-button-details{
+    padding: 12px 15px;
+    width: 80%;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+}
+.criminal-map-stats-options-button-details:hover{
+    background-color: #c62828;
+    cursor: pointer;
+}
+.criminal-map-stats-options-button-secondary{
+    height: 40px;
+}
+.criminal-map-stats-select{
+    display: flex;
+    justify-content: space-between;
+}
+.criminal-map-stats-select-neighborhood{
+
+}
+.criminal-map-stats-select-year{
+
+}
+.criminal-map-stats-ranking{
+
+}
+.criminal-map-stats-ranking-card{
+
+}
+.criminal-map-stats-ranking-card-title{
+
+}
+.criminal-map-stats-ranking-card-list{
+
+}
+.criminal-map-stats-ranking-card-list-item{
+
+}
+.criminal-map-stats-ranking-card-list-item-title{
+
+}
+.criminal-map-stats-ranking-card-list-item-number{
+
+}
+.criminal-map-stats-months{
+
+}
+.criminal-map-stats-footer{
+
+}
+.criminal-map-chart{
+
 }
