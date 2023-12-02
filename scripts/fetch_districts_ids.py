@@ -28,3 +28,23 @@ with open('public/districts.json', 'w') as json_file:
 # Close html file
 html_file.close()
 
+districts_list = []
+# Open public/sp_map.svg file and get its content
+svg_file = open('public/sp_map.svg', 'r')
+svg = svg_file.read()
+
+# Parse svg content
+soup = BeautifulSoup(svg, 'html.parser')
+# Get all paths inside svg
+paths = soup.find_all('path')
+
+# Find all paths with id attribute "path_xxx"
+for path in paths:
+    if path['id'].startswith('path_'):
+        print(path)
+        # Get id
+        district_id = path['id'][5:]
+        print(district_id)
+        districts_list.append(district_id)
+
+print(districts_list)

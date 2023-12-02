@@ -4,7 +4,7 @@ import os
 
 
 # Get path to assets folder
-assets_path = os.path.join(os.path.dirname(__file__), '../assets')
+assets_path = os.path.join(os.path.dirname(__file__), '../assets/sheets')
 
 # Get all folders inside assets folder
 folders = os.listdir(assets_path)

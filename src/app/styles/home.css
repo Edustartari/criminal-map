@@ -18,7 +18,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 .criminal-map-stats{
     margin: 30px 20px 0 0;
@@ -54,25 +54,66 @@
     justify-content: space-between;
 }
 .criminal-map-stats-select-neighborhood{
-
+    width: 80%;
+    margin: 0 20px 0 0;
 }
 .criminal-map-stats-select-year{
+    width: 20%;
+}
+.criminal-map-stats-select .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+    color: white;
+}
+.criminal-map-stats-select .css-1d3z3hw-MuiOutlinedInput-notchedOutline{
+    border: 1px solid #37474f;
+}
+.criminal-map-stats-select .css-hfutr2-MuiSvgIcon-root-MuiSelect-icon{
+    fill:#37474f;
+    font-size: 3rem;
+}
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root{
+    line-height: 1.2;
+}
+.css-6hp17o-MuiList-root-MuiMenu-list {
+    background-color: #263238;
+    color: #f3f3f3;
+}
+.criminal-map-stats-select {
 
 }
 .criminal-map-stats-ranking{
-
+    margin: 20px 0;
+    display: flex;
 }
 .criminal-map-stats-ranking-card{
-
+    width: 50%;
+}
+.criminal-map-stats-ranking-card:nth-child(1) {
+    margin: 0 50px 0 0;
+}
+.criminal-map-stats-ranking-card:nth-child(1) .criminal-map-stats-ranking-card-title{
+    color: #c62828;
+    font-weight: 600;
+}
+.criminal-map-stats-ranking-card:nth-child(2) .criminal-map-stats-ranking-card-title{
+    color: rgb(0, 187, 255);
+    font-size: 17.8px;
 }
 .criminal-map-stats-ranking-card-title{
-
+    letter-spacing: 0.6px;
+    font-size: 18px;
+    border-bottom: 1px solid #78909c;
+    padding: 0 0 15px 0;
+    margin: 0 0 15px 0;
 }
 .criminal-map-stats-ranking-card-list{
 
 }
 .criminal-map-stats-ranking-card-list-item{
-
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #f3f3f3;
 }
 .criminal-map-stats-ranking-card-list-item-title{
 
@@ -84,8 +125,18 @@
 
 }
 .criminal-map-stats-footer{
-
+    color: #f3f3f3;
+    font-size: 13px;
+    border-top: 1px solid #f3f3f3;
+    padding: 5px 0 0 0;
 }
 .criminal-map-chart{
-
+    width: 480px;
+    margin: 50px 0 0 0;
+}
+.criminal-map-stats-select .css-14lo706 {
+    display: none;
+}
+.sp-map-chart-component text{
+    display: none;
 }
