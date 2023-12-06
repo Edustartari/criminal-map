@@ -134,6 +134,9 @@
     width: 480px;
     margin: 50px 0 0 0;
 }
+.criminal-map-chart path:hover{
+    cursor: pointer;
+}
 .criminal-map-stats-select .css-14lo706 {
     display: none;
 }

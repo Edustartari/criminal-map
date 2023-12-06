@@ -13,6 +13,10 @@ import _ from "lodash";
 import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
 
+function numberWithDots(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 const crimes_list = [
 	'HOMICÍDIO DOLOSO (2)',
 	'HOMICÍDIO CULPOSO POR ACIDENTE DE TRÂNSITO',
@@ -29,36 +33,7 @@ const crimes_list = [
 	'FURTO DE VEÍCULO'
 ]
 
-let districts_data = {}
-const req = require.context('../../assets/json', true, /\.json$/)
-req.keys().forEach(function(key){
-	let suffix = key.split('_');
-	let year = suffix[1].replace('.json', '');
-	let district_id = suffix[0].split('/')[3];
-	if (year == '2023' && district_id in districts_available) {
-		districts_data[district_id] = req(key);
-	}
-});
-console.log('districts_data: ', districts_data);
-
-let top_violent = []
-Object.entries(districts_data).map(([key, value]) => {
-	console.log('')
-	console.log('key: ', key);
-	console.log('value: ', value);
-	let total = 0;
-	for(let i of value) {
-		console.log('i: ', i)
-		if (crimes_list.includes(i['Natureza'])){
-			total += i['Total'];
-		}
-	}
-	top_violent.push([key, total]);
-})
-console.log('top_violent: ', top_violent);
-top_violent.sort((a, b) => b[1] - a[1]);
-console.log('top_violent: ', top_violent);
-
+console.log('districts_available: ', districts_available);
 
 // Format districts_available.json to a more readable format
 let districts = {}
@@ -70,6 +45,7 @@ Object.entries(districts_available).map(([key, value]) => {
 	district = district.replace(' ', '');
 	districts[key] = dp + ' · ' + parseInt(district) + 'º DP';
 })
+console.log('districts: ', districts);
 
 // Order alphabetically
 let districts_list = Object.entries(districts).sort((a, b) =>  a[1].localeCompare(b[1]) );
@@ -82,15 +58,144 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			district_selected: 565,
+			district_selected: '565',
 			year_selected: 2023,
 			districts_list: districts_list,
-			crime_selected: 'Todos',
-			top_violent: []
+			crime_selected: 'All',
+			violent_ranking: [],
+			most_violent_ranking_list: [],
+			less_violent_ranking_list: []
 		}
+		this.filter_data = this.filter_data.bind(this);
+
+		this.filter_data()
+	}
+
+	filter_data(type = 'All', district = '565', year = 2023){
+		console.log('')
+		console.log('filter_data')
+		console.log('type: ', type)
+		console.log('district: ', district)
+		console.log('year: ', year)
+
+		let districts_data = {}
+		const req = require.context('../../assets/json', true, /\.json$/)
+		req.keys().forEach(function(key){
+			let suffix = key.split('_');
+			let year_file = suffix[1].replace('.json', '');
+			let district_id = suffix[0].split('/')[3];
+			if (year_file == year && district_id in districts_available) {
+				districts_data[district_id] = req(key);
+			}
+		});
+		console.log('districts_data: ', districts_data);
+		
+		let violent_ranking = []
+		if (type === 'All'){
+			Object.entries(districts_data).map(([key, value]) => {
+				let total = 0;
+				for(let i of value) {
+					if (crimes_list.includes(i['Natureza'])){
+						total += i['Total'];
+					}
+				}
+				violent_ranking.push([key, total]);
+			})
+		}
+		
+		let most_violent_original = [...violent_ranking];
+		let less_violent_original = [...violent_ranking];
+		most_violent_original.shift();
+		most_violent_original = most_violent_original.sort((a, b) => b[1] - a[1]);
+		less_violent_original = less_violent_original.sort((a, b) => a[1] - b[1]);
+		
+		let most_violent = most_violent_original.slice(0,5);
+		most_violent = most_violent.map((item) => item[0]);
+		if (district != 565){
+			let selected_district = most_violent_original.filter((item) => item[0] == district);
+			let already_present = most_violent.filter((item) => item == district);
+			if (already_present.length === 0){
+				most_violent = most_violent.slice(0,4);
+				most_violent.push(selected_district[0][0]);
+			} else {
+				for(let i=most_violent.length - 1; i>=most_violent.length; i--){
+					if (most_violent[i] !== district){
+						most_violent.pop(i);
+						break
+					}
+				}
+				most_violent.push(selected_district[0][0]);
+			}
+			console.log('most_violent: ', most_violent);
+			
+		}
+		console.log('most_violent_original: ', most_violent_original);
+
+		// Create a dict from violent_ranking
+		let most_violent_ranking = {}
+		most_violent_original.map((item) => {
+			let dp = districts_available[item[0]].split(' - ')[1];
+			if (dp && most_violent.includes(item[0])){
+				most_violent_ranking[item[0]] = {
+					'rank': most_violent_original.indexOf(item) + 1,
+					'total': item[1],
+					'district_name': dp
+				};
+			}
+		})
+		// Order by rank
+		let most_violent_ranking_list = Object.entries(most_violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
+		
+		let less_violent = less_violent_original.slice(0,5);
+		less_violent = less_violent.map((item) => item[0]);
+		if (district != 565){
+			let selected_district = less_violent_original.filter((item) => item[0] == district);
+			let already_present = less_violent.filter((item) => item == district);
+			if (already_present.length === 0){
+				less_violent = less_violent.slice(0,4);
+				less_violent.push(selected_district[0][0]);
+			} else {
+				for(let i=less_violent.length - 1; i>=less_violent.length; i--){
+					if (less_violent[i] !== district){
+						less_violent.pop(i);
+						break
+					}
+				}
+				less_violent.push(selected_district[0][0]);
+			}
+			console.log('less_violent: ', less_violent);
+			
+		}
+		console.log('less_violent_original: ', less_violent_original);
+		// Create a dict from violent_ranking
+		let less_violent_ranking = {}
+		less_violent_original.map((item) => {
+			let dp = districts_available[item[0]].split(' - ')[1];
+			if (dp && less_violent.includes(item[0])){
+				less_violent_ranking[item[0]] = {
+					'rank': less_violent_original.indexOf(item) + 1,
+					'total': item[1],
+					'district_name': dp
+				};
+			}
+		})
+		// Order by rank
+		let less_violent_ranking_list = Object.entries(less_violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
+		console.log('less_violent_ranking_list: ', less_violent_ranking_list);
+
+		this.setState({
+			violent_ranking: violent_ranking,
+			most_violent_ranking_list: most_violent_ranking_list,
+			less_violent_ranking_list: less_violent_ranking_list,
+			crime_selected: type,
+			district_selected: district,
+			year_selected: year		
+		})
 	}
 
 	render() {
+		console.log('district_selected: ', this.state.district_selected)
+		console.log('district_selected: ', typeof(this.state.district_selected))
 		return (
 			<div className='criminal-map-main-background'>
 				<div className='criminal-map-main-header'>
@@ -100,7 +205,7 @@ class Home extends React.Component {
 					<div className='criminal-map-stats'>
 						<div className='criminal-map-stats-options'>
 							<div className='criminal-map-stats-options-buttons'>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Todos' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Todos'})}>Todos</div>
+								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'All' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'All'})}>Todos</div>
 								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Roubos' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Roubos'})}>Roubos</div>
 								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Furtos' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Furtos'})}>Furtos</div>
 								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Homicídios' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Homicídios'})}>Homicídios</div>
@@ -115,11 +220,10 @@ class Home extends React.Component {
 							<div className='criminal-map-stats-select-neighborhood'>
 								<FormControl fullWidth className='criminal-map-stats-select-form'>
 									<Select
-									labelId="demo-simple-select-label"
-									id="demo-simple-select"
-									value={this.state.district_selected}
-									label="Age"
-									onChange={(e) => this.setState({district_selected: e.target.value})}
+										labelId="demo-simple-select-label"
+										id="demo-simple-select"
+										value={this.state.district_selected}
+										onChange={(e) => this.filter_data(this.state.crime_selected, e.target.value, this.state.year_selected)}
 									>
 										{this.state.districts_list.map((item) => {
 											return(
@@ -135,8 +239,7 @@ class Home extends React.Component {
 										labelId="demo-simple-select-label"
 										id="demo-simple-select"
 										value={this.state.year_selected}
-										label="Age"
-										onChange={(e) => this.setState({year_selected: e.target.value})}
+										onChange={(e) => this.filter_data(this.state.crime_selected, this.state.district_selected, e.target.value)}
 									>
 										{years.map((year) => {
 											return(
@@ -151,51 +254,27 @@ class Home extends React.Component {
 							<div className='criminal-map-stats-ranking-card'>
 								<div className='criminal-map-stats-ranking-card-title'>MAIS VIOLENTOS</div>
 								<div className='criminal-map-stats-ranking-card-list'>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>1º Jardim Herculano</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>426</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>2º Capão Redondo</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>386</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>3º Campo Limpo</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>352</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>4º Sé</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>343</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>5º Itaim Paulista</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>340</div>
-									</div>
+									{this.state.most_violent_ranking_list.slice(0,5).map((item, index) => {
+										return(
+											<div className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
+												<div className='criminal-map-stats-ranking-card-list-item-title'>{item[1]['rank'] + 'º ' + item[1]['district_name']}</div>
+												<div className='criminal-map-stats-ranking-card-list-item-number'>{numberWithDots(item[1]['total'])}</div>
+											</div>
+										)
+									})}
 								</div>
 							</div>
 							<div className='criminal-map-stats-ranking-card'>
 								<div className='criminal-map-stats-ranking-card-title'>MENOS VIOLENTOS</div>
 								<div className='criminal-map-stats-ranking-card-list'>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>1º Jardim Herculano</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>42</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>2º Capão Redondo</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>38</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>3º Campo Limpo</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>35</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>4º Sé</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>34</div>
-									</div>
-									<div className='criminal-map-stats-ranking-card-list-item'>
-										<div className='criminal-map-stats-ranking-card-list-item-title'>5º Itaim Paulista</div>
-										<div className='criminal-map-stats-ranking-card-list-item-number'>34</div>
-									</div>
+									{this.state.less_violent_ranking_list.slice(0,5).map((item, index) => {
+										return(
+											<div className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
+												<div className='criminal-map-stats-ranking-card-list-item-title'>{item[1]['rank'] + 'º ' + item[1]['district_name']}</div>
+												<div className='criminal-map-stats-ranking-card-list-item-number'>{numberWithDots(item[1]['total'])}</div>
+											</div>
+										)
+									})}
 								</div>
 							</div>
 						</div>
