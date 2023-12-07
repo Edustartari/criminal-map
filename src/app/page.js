@@ -12,26 +12,11 @@ import sp_map from '../../public/sp_map.svg';
 import _ from "lodash";
 import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
+import {crimes_type_list, crimes_subtype_list } from '@/app/crimes_lists.js'
 
 function numberWithDots(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
-
-const crimes_list = [
-	'HOMICÍDIO DOLOSO (2)',
-	'HOMICÍDIO CULPOSO POR ACIDENTE DE TRÂNSITO',
-	'TENTATIVA DE HOMICÍDIO',
-	'LESÃO CORPORAL SEGUIDA DE MORTE',
-	'LESÃO CORPORAL DOLOSA',
-	'LESÃO CORPORAL CULPOSA POR ACIDENTE DE TRÂNSITO',
-	'LESÃO CORPORAL CULPOSA - OUTRAS',
-	'LATROCÍNIO',
-	'TOTAL DE ESTUPRO (4)',
-	'TOTAL DE ROUBO - OUTROS (1)',
-	'ROUBO DE VEÍCULO',
-	'FURTO - OUTROS',
-	'FURTO DE VEÍCULO'
-]
 
 console.log('districts_available: ', districts_available);
 
@@ -49,7 +34,7 @@ console.log('districts: ', districts);
 
 // Order alphabetically
 let districts_list = Object.entries(districts).sort((a, b) =>  a[1].localeCompare(b[1]) );
-districts_list.unshift(['565', 'TODOS OS DISTRITOS POLICIAIS']);
+districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 
 // Create list of years since the year 2001 until 2023, and reverse it
 let years = _.range(2001, 2024).reverse();
@@ -61,17 +46,21 @@ class Home extends React.Component {
 			district_selected: '565',
 			year_selected: 2023,
 			districts_list: districts_list,
-			crime_selected: 'All',
+			crime_type: 'All',
+			crime_subtype: 'All',
 			violent_ranking: [],
 			most_violent_ranking_list: [],
 			less_violent_ranking_list: []
 		}
 		this.filter_data = this.filter_data.bind(this);
 
-		this.filter_data()
+	}
+	
+	componentDidMount() {
+		this.filter_data();
 	}
 
-	filter_data(type = 'All', district = '565', year = 2023){
+	filter_data(type = 'All', subtype = 'All', district = '565', year = 2023){
 		console.log('')
 		console.log('filter_data')
 		console.log('type: ', type)
@@ -91,17 +80,21 @@ class Home extends React.Component {
 		console.log('districts_data: ', districts_data);
 		
 		let violent_ranking = []
+		// Get all ssp_keys from crimes_list
+		let ssp_keys = crimes_subtype_list.map((item) => item['ssp_key']);
 		if (type === 'All'){
 			Object.entries(districts_data).map(([key, value]) => {
 				let total = 0;
 				for(let i of value) {
-					if (crimes_list.includes(i['Natureza'])){
+					if (ssp_keys.includes(i['Natureza'])){
 						total += i['Total'];
 					}
 				}
 				violent_ranking.push([key, total]);
 			})
 		}
+
+		console.log('violent_ranking: ', violent_ranking);
 		
 		let most_violent_original = [...violent_ranking];
 		let less_violent_original = [...violent_ranking];
@@ -187,34 +180,55 @@ class Home extends React.Component {
 			violent_ranking: violent_ranking,
 			most_violent_ranking_list: most_violent_ranking_list,
 			less_violent_ranking_list: less_violent_ranking_list,
-			crime_selected: type,
+			crime_type: type,
+			crime_subtype: subtype,
 			district_selected: district,
 			year_selected: year		
 		})
 	}
 
 	render() {
-		console.log('district_selected: ', this.state.district_selected)
-		console.log('district_selected: ', typeof(this.state.district_selected))
+		// console.log('')
+		// console.log('most_violent_ranking_list: ', this.state.most_violent_ranking_list)
+		// console.log('less_violent_ranking_list: ', this.state.less_violent_ranking_list)
 		return (
 			<div className='criminal-map-main-background'>
 				<div className='criminal-map-main-header'>
-					Criminalidade em São Paulo
+					Criminality Map of São Paulo
 				</div>
 				<div className='criminal-map-main-container'>
 					<div className='criminal-map-stats'>
 						<div className='criminal-map-stats-options'>
 							<div className='criminal-map-stats-options-buttons'>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'All' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'All'})}>Todos</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Roubos' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Roubos'})}>Roubos</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Furtos' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Furtos'})}>Furtos</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Homicídios' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Homicídios'})}>Homicídios</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Lesões Corporais' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Lesões Corporais'})}>Lesões Corporais</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Estupros' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Estupros'})}>Estupros</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Latrocínios' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Latrocínios'})}>Latrocínios</div>
-								<div className='criminal-map-stats-options-button-details' style={this.state.crime_selected === 'Tráfico de Drogas' ? {backgroundColor: '#c62828'} : {}} onClick={() => this.setState({crime_selected: 'Tráfico de Drogas'})}>Tráfico de Drogas</div>
+								{crimes_type_list.map((item, index) => {
+									return(
+										<div
+											key={index}
+											className='criminal-map-stats-options-button-details' 
+											style={this.state.crime_type === item['key'] ? {backgroundColor: '#c62828'} : {}} 
+											onClick={() => this.filter_data(item['key'], this.state.crime_subtype, this.state.district_selected, this.state.year_selected)}
+										>
+												{item['menu_title']}
+										</div>
+									)
+								})}
 							</div>
-							<div className='criminal-map-stats-options-button-secondary'></div>
+							<div className='criminal-map-stats-options-button-secondary'>
+								{crimes_subtype_list.map((item, index) => {
+									if(item['key'] !== this.state.crime_type) return;
+									else if (item['key'] === 'LATROCÍNIO' || item['key'] === 'ESTUPRO') return;
+									return(
+										<div
+											key={index}
+											className='criminal-map-stats-options-button-details' 
+											style={this.state.crime_subtype === item['ssp_key'] ? {backgroundColor: '#c62828'} : {}} 
+											onClick={() => this.filter_data(item['key'], item['ssp_key'], this.state.district_selected, this.state.year_selected)}
+										>
+												{item['menu_title']}
+										</div>
+									)
+								})}
+							</div>
 						</div>
 						<div className='criminal-map-stats-select'>
 							<div className='criminal-map-stats-select-neighborhood'>
@@ -223,7 +237,7 @@ class Home extends React.Component {
 										labelId="demo-simple-select-label"
 										id="demo-simple-select"
 										value={this.state.district_selected}
-										onChange={(e) => this.filter_data(this.state.crime_selected, e.target.value, this.state.year_selected)}
+										onChange={(e) => this.filter_data(this.state.crime_type, this.state.crime_subtype, e.target.value, this.state.year_selected)}
 									>
 										{this.state.districts_list.map((item) => {
 											return(
@@ -239,7 +253,7 @@ class Home extends React.Component {
 										labelId="demo-simple-select-label"
 										id="demo-simple-select"
 										value={this.state.year_selected}
-										onChange={(e) => this.filter_data(this.state.crime_selected, this.state.district_selected, e.target.value)}
+										onChange={(e) => this.filter_data(this.state.crime_type, this.state.crime_subtype, this.state.district_selected, e.target.value)}
 									>
 										{years.map((year) => {
 											return(
@@ -252,12 +266,16 @@ class Home extends React.Component {
 						</div>
 						<div className='criminal-map-stats-ranking'>
 							<div className='criminal-map-stats-ranking-card'>
-								<div className='criminal-map-stats-ranking-card-title'>MAIS VIOLENTOS</div>
+								<div className='criminal-map-stats-ranking-card-title'>MOST VIOLENT</div>
 								<div className='criminal-map-stats-ranking-card-list'>
 									{this.state.most_violent_ranking_list.slice(0,5).map((item, index) => {
+										let select_district = this.state.district_selected === item[0] ? '565' : item[0];
 										return(
-											<div className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
-												<div className='criminal-map-stats-ranking-card-list-item-title'>{item[1]['rank'] + 'º ' + item[1]['district_name']}</div>
+											<div key={item[0]} className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
+												<div 
+													className='criminal-map-stats-ranking-card-list-item-title' 
+													onClick={() => this.filter_data(this.state.crime_type, this.state.crime_subtype, select_district, this.state.year_selected)}>{item[1]['rank'] + 'º ' + item[1]['district_name']}
+												</div>
 												<div className='criminal-map-stats-ranking-card-list-item-number'>{numberWithDots(item[1]['total'])}</div>
 											</div>
 										)
@@ -265,12 +283,16 @@ class Home extends React.Component {
 								</div>
 							</div>
 							<div className='criminal-map-stats-ranking-card'>
-								<div className='criminal-map-stats-ranking-card-title'>MENOS VIOLENTOS</div>
+								<div className='criminal-map-stats-ranking-card-title'>LESS VIOLENT</div>
 								<div className='criminal-map-stats-ranking-card-list'>
 									{this.state.less_violent_ranking_list.slice(0,5).map((item, index) => {
+										let select_district = this.state.district_selected === item[0] ? '565' : item[0];
 										return(
-											<div className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
-												<div className='criminal-map-stats-ranking-card-list-item-title'>{item[1]['rank'] + 'º ' + item[1]['district_name']}</div>
+											<div key={item[0]} className='criminal-map-stats-ranking-card-list-item' style={this.state.district_selected === item[0] ? {color: 'gold'} : {}}>
+												<div 
+													className='criminal-map-stats-ranking-card-list-item-title'
+													onClick={() => this.filter_data(this.state.crime_type, this.state.crime_subtype, select_district, this.state.year_selected)}>{item[1]['rank'] + 'º ' + item[1]['district_name']}
+												</div>
 												<div className='criminal-map-stats-ranking-card-list-item-number'>{numberWithDots(item[1]['total'])}</div>
 											</div>
 										)
@@ -279,10 +301,40 @@ class Home extends React.Component {
 							</div>
 						</div>
 						<div className='criminal-map-stats-months'></div>
-						<div className='criminal-map-stats-footer'>Fonte: Secretaria de Estado da Segurança Pública de São Paulo</div>
+						<div className='criminal-map-stats-footer'>Source: Secretaria de Estado da Segurança Pública de São Paulo</div>
 					</div>
 					<div className='criminal-map-chart'>
 						<SPChart />
+						<div className='criminal-map-chart-legend'>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>0 a 720</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square'></div>
+								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

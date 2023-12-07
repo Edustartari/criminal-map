@@ -40,6 +40,7 @@
     align-items: center;
     color: white;
     font-size: 14px;
+    line-height: 1.3;
     transition: background-color 0.2s ease-in-out;
 }
 .criminal-map-stats-options-button-details:hover{
@@ -47,11 +48,13 @@
     cursor: pointer;
 }
 .criminal-map-stats-options-button-secondary{
-    height: 40px;
+    height: 45px;
+    display: flex;
 }
 .criminal-map-stats-select{
     display: flex;
     justify-content: space-between;
+    margin: 10px 0 0 0;
 }
 .criminal-map-stats-select-neighborhood{
     width: 80%;
@@ -76,9 +79,6 @@
 .css-6hp17o-MuiList-root-MuiMenu-list {
     background-color: #263238;
     color: #f3f3f3;
-}
-.criminal-map-stats-select {
-
 }
 .criminal-map-stats-ranking{
     margin: 20px 0;
@@ -116,7 +116,10 @@
     color: #f3f3f3;
 }
 .criminal-map-stats-ranking-card-list-item-title{
-
+    width: 100%;
+}
+.criminal-map-stats-ranking-card-list-item-title:hover {
+    cursor: pointer;
 }
 .criminal-map-stats-ranking-card-list-item-number{
 
@@ -131,8 +134,10 @@
     padding: 5px 0 0 0;
 }
 .criminal-map-chart{
-    width: 480px;
+    width: 400px;
+    width: 400px;
     margin: 50px 0 0 0;
+    position: relative;
 }
 .criminal-map-chart path:hover{
     cursor: pointer;
@@ -142,4 +147,29 @@
 }
 .sp-map-chart-component text{
     display: none;
+}
+.criminal-map-chart-legend{
+    position: absolute;
+    right: 0;
+    bottom: 50px;
+    padding: 20px;
+    border: 1px solid #78909c;
+}
+.criminal-map-chart-legend-item{
+    margin: 0 0 5px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.criminal-map-chart-legend-item:nth-last-child(1){
+    margin-bottom: 0;
+}
+.criminal-map-chart-legend-item-square{
+    background-color: red;
+    width: 25px;
+    height: 25px;
+    margin: 0 8px 0 0;
+}
+.criminal-map-chart-legend-item-range{
+    color: #f3f3f3;
 }
