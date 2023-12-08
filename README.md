@@ -1,4 +1,4 @@
-Have you ever wondered which neighborhood in the city of São Paulo is the most dangerous? And which is less violent? You can find the answer here on this interactive map. I retrieved official statistics from SSP ([State Secretariat for Public Security of São Paulo](https://www.ssp.sp.gov.br/)). Enjoy!
+Have you ever wondered which neighborhood in the city of São Paulo, Brazil is the most dangerous? And which is less violent? You can find the answer here on this interactive map. I retrieved official statistics from SSP ([State Secretariat for Public Security of São Paulo](https://www.ssp.sp.gov.br/)). Enjoy!
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
