@@ -18,6 +18,18 @@ function numberWithDots(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+const legend_colors = [
+	'#fff7eb',
+	'#ffd699',
+	'#ffb74d',
+	'#f29044',
+	'#e5693b',
+	'#f44336',
+	'#a82424',
+	'#761919',
+	'#400d0d',
+]
+
 console.log('districts_available: ', districts_available);
 
 // Format districts_available.json to a more readable format
@@ -50,7 +62,8 @@ class Home extends React.Component {
 			crime_subtype: 'All',
 			violent_ranking: [],
 			most_violent_ranking_list: [],
-			less_violent_ranking_list: []
+			less_violent_ranking_list: [],
+			highest_value: 0
 		}
 		this.filter_data = this.filter_data.bind(this);
 
@@ -64,6 +77,7 @@ class Home extends React.Component {
 		console.log('')
 		console.log('filter_data')
 		console.log('type: ', type)
+		console.log('subtype: ', subtype)
 		console.log('district: ', district)
 		console.log('year: ', year)
 
@@ -82,6 +96,7 @@ class Home extends React.Component {
 		let violent_ranking = []
 		// Get all ssp_keys from crimes_list
 		let ssp_keys = crimes_subtype_list.map((item) => item['ssp_key']);
+		console.log('ssp_keys: ', ssp_keys);
 		if (type === 'All'){
 			Object.entries(districts_data).map(([key, value]) => {
 				let total = 0;
@@ -92,13 +107,37 @@ class Home extends React.Component {
 				}
 				violent_ranking.push([key, total]);
 			})
+		} else if (type === 'ESTUPRO' || type === 'LATROCÍNIO'){
+			let natureza = type === 'ESTUPRO' ? 'TOTAL DE ESTUPRO (4)' : 'LATROCÍNIO';
+			Object.entries(districts_data).map(([key, value]) => {
+				let total = 0;
+				for(let i of value) {
+					if (natureza === i['Natureza']){
+						total += i['Total'];
+					}
+				}
+				violent_ranking.push([key, total]);
+			})
+		} else {
+			Object.entries(districts_data).map(([key, value]) => {
+				let total = 0;
+				for(let i of value) {
+					if (subtype === 'All' && i['Natureza'].includes(type) && ssp_keys.includes(i['Natureza'])){
+						total += i['Total'];
+					}
+					else if (i['Natureza'] === subtype){
+						total += i['Total'];
+					}
+				}
+				violent_ranking.push([key, total]);
+			})
 		}
 
 		console.log('violent_ranking: ', violent_ranking);
 		
+		violent_ranking.shift();
 		let most_violent_original = [...violent_ranking];
 		let less_violent_original = [...violent_ranking];
-		most_violent_original.shift();
 		most_violent_original = most_violent_original.sort((a, b) => b[1] - a[1]);
 		less_violent_original = less_violent_original.sort((a, b) => a[1] - b[1]);
 		
@@ -124,7 +163,6 @@ class Home extends React.Component {
 		}
 		console.log('most_violent_original: ', most_violent_original);
 
-		// Create a dict from violent_ranking
 		let most_violent_ranking = {}
 		most_violent_original.map((item) => {
 			let dp = districts_available[item[0]].split(' - ')[1];
@@ -160,7 +198,6 @@ class Home extends React.Component {
 			
 		}
 		console.log('less_violent_original: ', less_violent_original);
-		// Create a dict from violent_ranking
 		let less_violent_ranking = {}
 		less_violent_original.map((item) => {
 			let dp = districts_available[item[0]].split(' - ')[1];
@@ -176,6 +213,10 @@ class Home extends React.Component {
 		let less_violent_ranking_list = Object.entries(less_violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
 		console.log('less_violent_ranking_list: ', less_violent_ranking_list);
 
+		// Get the highest value from the violent_ranking
+		let highest_value = Math.max.apply(Math, violent_ranking.map(function(o) { return o[1]; }))
+		console.log('highest_value: ', highest_value);
+		
 		this.setState({
 			violent_ranking: violent_ranking,
 			most_violent_ranking_list: most_violent_ranking_list,
@@ -183,7 +224,8 @@ class Home extends React.Component {
 			crime_type: type,
 			crime_subtype: subtype,
 			district_selected: district,
-			year_selected: year		
+			year_selected: year,
+			highest_value: highest_value
 		})
 	}
 
@@ -206,7 +248,7 @@ class Home extends React.Component {
 											key={index}
 											className='criminal-map-stats-options-button-details' 
 											style={this.state.crime_type === item['key'] ? {backgroundColor: '#c62828'} : {}} 
-											onClick={() => this.filter_data(item['key'], this.state.crime_subtype, this.state.district_selected, this.state.year_selected)}
+											onClick={() => this.filter_data(item['key'], 'All', this.state.district_selected, this.state.year_selected)}
 										>
 												{item['menu_title']}
 										</div>
@@ -304,7 +346,7 @@ class Home extends React.Component {
 						<div className='criminal-map-stats-footer'>Source: Secretaria de Estado da Segurança Pública de São Paulo</div>
 					</div>
 					<div className='criminal-map-chart'>
-						<SPChart />
+						<SPChart {...this.state}/>
 						<div className='criminal-map-chart-legend'>
 							<div className='criminal-map-chart-legend-item'>
 								<div className='criminal-map-chart-legend-item-square'></div>

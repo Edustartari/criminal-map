@@ -73,7 +73,12 @@ export const crimes_subtype_list = [
 	{
 		ssp_key: 'HOMICÍDIO CULPOSO POR ACIDENTE DE TRÂNSITO',
 		key: 'HOMICÍDIO',
-		menu_title: 'Culposos'
+		menu_title: 'Culposos (Trânsito)'
+	},
+	{
+		ssp_key: 'HOMICÍDIO CULPOSO OUTROS',
+		key: 'HOMICÍDIO',
+		menu_title: 'Culposos (outros)'
 	},
 	{
 		ssp_key: 'TENTATIVA DE HOMICÍDIO',
@@ -100,11 +105,6 @@ export const crimes_subtype_list = [
 		key: 'LESÃO',
 		menu_title: 'Culposos (Outros)'
 	},
-    {
-        ssp_key: 'LESÃO CORPORAL SEGUIDA DE MORTE',
-        key: 'LESÃO',
-        menu_title: 'Seguida de morte'
-    },
     {
         ssp_key: 'TOTAL DE ESTUPRO (4)',
         key: 'ESTUPRO',

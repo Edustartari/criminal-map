@@ -142,6 +142,10 @@
 .criminal-map-chart path:hover{
     cursor: pointer;
 }
+.criminal-map-chart path{
+    stroke: black;
+    stroke-width: 0.5px !important;
+}
 .criminal-map-stats-select .css-14lo706 {
     display: none;
 }
