@@ -125,7 +125,6 @@
 
 }
 .criminal-map-stats-months{
-
 }
 .criminal-map-stats-footer{
     color: #f3f3f3;
@@ -143,6 +142,8 @@
     cursor: pointer;
 }
 .criminal-map-chart path{
+    /* stroke: #78909c; */
+    /* stroke: #2b769b; */
     stroke: black;
     stroke-width: 0.5px !important;
 }

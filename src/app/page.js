@@ -233,6 +233,13 @@ class Home extends React.Component {
 		// console.log('')
 		// console.log('most_violent_ranking_list: ', this.state.most_violent_ranking_list)
 		// console.log('less_violent_ranking_list: ', this.state.less_violent_ranking_list)
+		let range = this.state.highest_value < 16 ? 2 : this.state.highest_value / 8
+		console.log('range: ', range)
+		console.log('range * 2: ', range * 2)
+		// Abbreaviate range
+		range = Math.floor(range)
+		console.log('range: ', range)
+		console.log('range: ', typeof(range))
 		return (
 			<div className='criminal-map-main-background'>
 				<div className='criminal-map-main-header'>
@@ -349,32 +356,36 @@ class Home extends React.Component {
 						<SPChart {...this.state}/>
 						<div className='criminal-map-chart-legend'>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>0 a 720</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: 'white'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>0 a {range}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#ffd699'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{(range + 1)} a {(range * 2)}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#ffb74d'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{((range * 2) + 1)} a {(range * 3)}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#f29044'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{((range * 3) + 1)} a {(range * 4)}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#e5693b'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{((range * 4) + 1)} a {(range * 5)}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#f44336'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{((range * 5) + 1)} a {(range * 6)}</div>
 							</div>
 							<div className='criminal-map-chart-legend-item'>
-								<div className='criminal-map-chart-legend-item-square'></div>
-								<div className='criminal-map-chart-legend-item-range'>720 a 1296</div>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#a82424'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{((range * 6) + 1)} a {(range * 7)}</div>
+							</div>
+							<div className='criminal-map-chart-legend-item'>
+								<div className='criminal-map-chart-legend-item-square' style={{backgroundColor: '#761919'}}></div>
+								<div className='criminal-map-chart-legend-item-range'>{'>'} {((range * 7) + 1)}</div>
 							</div>
 						</div>
 					</div>
