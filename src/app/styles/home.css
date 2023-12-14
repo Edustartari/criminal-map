@@ -145,7 +145,8 @@
     /* stroke: #78909c; */
     /* stroke: #2b769b; */
     stroke: black;
-    stroke-width: 0.5px !important;
+    stroke-width: 1.5px !important;
+    transition: all 0.2s ease-in-out;
 }
 .criminal-map-stats-select .css-14lo706 {
     display: none;
