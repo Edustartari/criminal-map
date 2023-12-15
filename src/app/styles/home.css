@@ -60,23 +60,32 @@
     width: 80%;
     margin: 0 20px 0 0;
 }
+.criminal-map-stats-select-neighborhood .MuiSelect-select {
+    color: white;
+}
+.criminal-map-stats-select-year .MuiSelect-select {
+    color: white;
+}
 .criminal-map-stats-select-year{
     width: 20%;
 }
-.criminal-map-stats-select .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+.criminal-map-stats-select .MuiInputBase-input{
     color: white;
 }
-.criminal-map-stats-select .css-1d3z3hw-MuiOutlinedInput-notchedOutline{
+.criminal-map-stats-select .MuiOutlinedInput-notchedOutline{
     border: 1px solid #37474f;
 }
-.criminal-map-stats-select .css-hfutr2-MuiSvgIcon-root-MuiSelect-icon{
+.criminal-map-stats-select .MuiSvgIcon-root{
     fill:#37474f;
     font-size: 3rem;
 }
-.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root{
+.MuiMenuItem-root{
     line-height: 1.2;
 }
-.css-6hp17o-MuiList-root-MuiMenu-list {
+.MuiMenuItem-root:hover{
+    background-color: #c62828;
+}
+.MuiMenu-list {
     background-color: #263238;
     color: #f3f3f3;
 }
