@@ -4,11 +4,9 @@ import ReactDOM from 'react-dom';
 import Image from 'next/image';
 import styles from '@/app/page.module.css';
 import '@/app/styles/home.css';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import sp_map from '../../public/sp_map.svg';
 import _ from 'lodash';
 import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
@@ -20,8 +18,6 @@ function numberWithDots(x) {
 
 const legend_colors = ['#fff7eb', '#ffd699', '#ffb74d', '#f29044', '#e5693b', '#f44336', '#a82424', '#761919', '#400d0d'];
 
-console.log('districts_available: ', districts_available);
-
 // Format districts_available.json to a more readable format
 let districts = {};
 Object.entries(districts_available).map(([key, value]) => {
@@ -32,7 +28,6 @@ Object.entries(districts_available).map(([key, value]) => {
 	district = district.replace(' ', '');
 	districts[key] = dp + ' · ' + parseInt(district) + 'º DP';
 });
-console.log('districts: ', districts);
 
 // Order alphabetically
 let districts_list = Object.entries(districts).sort((a, b) => a[1].localeCompare(b[1]));
@@ -60,6 +55,7 @@ class Home extends React.Component {
 		this.set_color = this.set_color.bind(this);
 		this.find_color = this.find_color.bind(this);
 		this.highlight_district = this.highlight_district.bind(this);
+		this.isHovered = this.isHovered.bind(this);
 	}
 
 	componentDidMount() {
@@ -67,13 +63,7 @@ class Home extends React.Component {
 	}
 
 	filter_data(type = 'All', subtype = 'All', district = '565', year = 2023) {
-		console.log('');
-		console.log('filter_data');
-		console.log('type: ', type);
-		console.log('subtype: ', subtype);
-		console.log('district: ', district);
-		console.log('year: ', year);
-
+		// Fetch data from all districts (only from year selected) inside the folder where the json files are
 		let districts_data = {};
 		const req = require.context('../../assets/json', true, /\.json$/);
 		req.keys().forEach(function (key) {
@@ -84,48 +74,33 @@ class Home extends React.Component {
 				districts_data[district_id] = req(key);
 			}
 		});
-		console.log('districts_data: ', districts_data);
 
+		// We'll create a list of lists with the district_id and the total of crimes for each one
 		let violent_ranking = [];
 		// Get all ssp_keys from crimes_list
 		let ssp_keys = crimes_subtype_list.map(item => item['ssp_key']);
-		console.log('ssp_keys: ', ssp_keys);
-		if (type === 'All') {
-			Object.entries(districts_data).map(([key, value]) => {
-				let total = 0;
-				for (let i of value) {
+		Object.entries(districts_data).map(([key, value]) => {
+			let total = 0;
+			for (let i of value) {
+				if (type === 'All') {
 					if (ssp_keys.includes(i['Natureza'])) {
 						total += i['Total'];
 					}
-				}
-				violent_ranking.push([key, total]);
-			});
-		} else if (type === 'ESTUPRO' || type === 'LATROCÍNIO') {
-			let natureza = type === 'ESTUPRO' ? 'TOTAL DE ESTUPRO (4)' : 'LATROCÍNIO';
-			Object.entries(districts_data).map(([key, value]) => {
-				let total = 0;
-				for (let i of value) {
+				} else if (type === 'ESTUPRO' || type === 'LATROCÍNIO') {
+					let natureza = type === 'ESTUPRO' ? 'TOTAL DE ESTUPRO (4)' : 'LATROCÍNIO';
 					if (natureza === i['Natureza']) {
 						total += i['Total'];
 					}
-				}
-				violent_ranking.push([key, total]);
-			});
-		} else {
-			Object.entries(districts_data).map(([key, value]) => {
-				let total = 0;
-				for (let i of value) {
+				} else {
 					if (subtype === 'All' && i['Natureza'].includes(type) && ssp_keys.includes(i['Natureza'])) {
 						total += i['Total'];
 					} else if (i['Natureza'] === subtype) {
 						total += i['Total'];
 					}
 				}
-				violent_ranking.push([key, total]);
-			});
-		}
-
-		console.log('violent_ranking: ', violent_ranking);
+			}
+			violent_ranking.push([key, total]);
+		});
 
 		violent_ranking.shift();
 		let most_violent_original = [...violent_ranking];
@@ -133,75 +108,45 @@ class Home extends React.Component {
 		most_violent_original = most_violent_original.sort((a, b) => b[1] - a[1]);
 		less_violent_original = less_violent_original.sort((a, b) => a[1] - b[1]);
 
-		let most_violent = most_violent_original.slice(0, 5);
-		most_violent = most_violent.map(item => item[0]);
-		if (district != 565) {
-			let selected_district = most_violent_original.filter(item => item[0] == district);
-			let already_present = most_violent.filter(item => item == district);
-			if (already_present.length === 0) {
-				most_violent = most_violent.slice(0, 4);
-				most_violent.push(selected_district[0][0]);
-			} else {
-				for (let i = most_violent.length - 1; i >= most_violent.length; i--) {
-					if (most_violent[i] !== district) {
-						most_violent.pop(i);
-						break;
+		function get_ranked_list(value) {
+			let violent = value.slice(0, 5);
+			violent = violent.map(item => item[0]);
+			if (district != 565) {
+				let selected_district = value.filter(item => item[0] == district);
+				let already_present = violent.filter(item => item == district);
+				if (already_present.length === 0) {
+					violent = violent.slice(0, 4);
+					violent.push(selected_district[0][0]);
+				} else {
+					for (let i = violent.length - 1; i >= violent.length; i--) {
+						if (violent[i] !== district) {
+							violent.pop(i);
+							break;
+						}
 					}
+					violent.push(selected_district[0][0]);
 				}
-				most_violent.push(selected_district[0][0]);
 			}
-			console.log('most_violent: ', most_violent);
-		}
-		console.log('most_violent_original: ', most_violent_original);
 
-		let most_violent_ranking = {};
-		most_violent_original.map(item => {
-			let dp = districts_available[item[0]].split(' - ')[1];
-			if (dp && most_violent.includes(item[0])) {
-				most_violent_ranking[item[0]] = {
-					rank: most_violent_original.indexOf(item) + 1,
-					total: item[1],
-					district_name: dp
-				};
-			}
-		});
-		// Order by rank
-		let most_violent_ranking_list = Object.entries(most_violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
-
-		let less_violent = less_violent_original.slice(0, 5);
-		less_violent = less_violent.map(item => item[0]);
-		if (district != 565) {
-			let selected_district = less_violent_original.filter(item => item[0] == district);
-			let already_present = less_violent.filter(item => item == district);
-			if (already_present.length === 0) {
-				less_violent = less_violent.slice(0, 4);
-				less_violent.push(selected_district[0][0]);
-			} else {
-				for (let i = less_violent.length - 1; i >= less_violent.length; i--) {
-					if (less_violent[i] !== district) {
-						less_violent.pop(i);
-						break;
-					}
+			let violent_ranking = {};
+			value.map(item => {
+				let dp = districts_available[item[0]].split(' - ')[1];
+				if (dp && violent.includes(item[0])) {
+					violent_ranking[item[0]] = {
+						rank: value.indexOf(item) + 1,
+						total: item[1],
+						district_name: dp
+					};
 				}
-				less_violent.push(selected_district[0][0]);
-			}
-			console.log('less_violent: ', less_violent);
+			});
+			// Order by rank
+			let violent_ranking_list = Object.entries(violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
+
+			return violent_ranking_list;
 		}
-		console.log('less_violent_original: ', less_violent_original);
-		let less_violent_ranking = {};
-		less_violent_original.map(item => {
-			let dp = districts_available[item[0]].split(' - ')[1];
-			if (dp && less_violent.includes(item[0])) {
-				less_violent_ranking[item[0]] = {
-					rank: less_violent_original.indexOf(item) + 1,
-					total: item[1],
-					district_name: dp
-				};
-			}
-		});
-		// Order by rank
-		let less_violent_ranking_list = Object.entries(less_violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
-		console.log('less_violent_ranking_list: ', less_violent_ranking_list);
+
+		let most_violent_ranking_list = get_ranked_list(most_violent_original);
+		let less_violent_ranking_list = get_ranked_list(less_violent_original);
 
 		// Get the highest value from the violent_ranking
 		let highest_value = Math.max.apply(
@@ -210,7 +155,15 @@ class Home extends React.Component {
 				return o[1];
 			})
 		);
-		console.log('highest_value: ', highest_value);
+
+		// Check if there is any district selected
+		let dp_id = '';
+		Object.entries(districts_available).map(([key, value]) => {
+			if (key === district) {
+				dp_id = value.split(' DP - ')[0];
+			}
+		});
+		let district_highlighted = district != '565' ? dp_id : false;
 
 		this.state.violent_ranking = violent_ranking;
 		this.state.most_violent_ranking_list = most_violent_ranking_list;
@@ -220,6 +173,7 @@ class Home extends React.Component {
 		this.state.district_selected = district;
 		this.state.year_selected = year;
 		this.state.highest_value = highest_value;
+		this.state.district_highlighted = district_highlighted;
 
 		this.setState({
 			violent_ranking: violent_ranking,
@@ -229,10 +183,14 @@ class Home extends React.Component {
 			crime_subtype: subtype,
 			district_selected: district,
 			year_selected: year,
-			highest_value: highest_value
+			highest_value: highest_value,
+			district_highlighted: district_highlighted
 		});
 
-		this.set_color()
+		this.set_color();
+		if (district === '565') {
+			this.setState({ district_highlighted: false });
+		}
 	}
 
 	find_color(district_stat) {
@@ -258,76 +216,65 @@ class Home extends React.Component {
 			else if (district_stat <= range * 7) color = '#a82424';
 			else if (district_stat > range * 7) color = '#761919';
 		}
+
 		return color;
 	}
 
 	set_color() {
-		console.log('')
-		console.log('set_color')
-		// console.log(path_id)
-		// let dp_id = path_id.split('_')[1]
-		// let dp_id = path_id
-		// console.log(dp_id)
-
-		for(let item of this.state.violent_ranking) {
-			console.log('')
-			console.log('-----------------------------')
-			console.log('item: ', item)
+		for (let item of this.state.violent_ranking) {
 			let district = districts_available[item[0]];
 			let dp_id = district.split(' DP - ')[0];
-			console.log('district: ', district)
-			console.log('dp_id: ', dp_id)
-			
 			let district_stat = item[1];
-			console.log('district_stat: ', district_stat)
-			// console.log('district_stat: ', district_stat)
-			// Create range for 8 levels based on this.props.highest_value
-			let color = this.find_color(district_stat);
+			let color = 'white';
+
+			if (this.state.district_highlighted && this.state.district_selected !== item[0]) {
+				color = 'transparent';
+			} else {
+				color = this.find_color(district_stat);
+			}
 			let path = document.getElementById(`path_${dp_id}`);
-			console.log('color: ', color)
 			path.style.fill = color;
+			path.style.stroke = this.state.district_highlighted ? '#23698b' : 'black';
 		}
 	}
 
 	highlight_district(dp_id) {
-		console.log('');
-		console.log('highlight_district');
-		console.log('dp_id: ', dp_id);
-		console.log('this.state.district_highlighted: ', this.state.district_highlighted);
-
-		let district_dict = {};
+		let selected_dp_id = '';
 		Object.entries(districts_available).map(([key, value]) => {
-			if (key == '565') return;
-			let district = value.split(' DP - ')[0];
-			district_dict[district] = key;
+			let district_id = value.split(' DP - ')[0];
+			if (district_id === dp_id) selected_dp_id = key;
 		});
-		if (dp_id === this.state.district_highlighted) {
-			this.setState({ district_highlighted: false });
 
-			this.set_color();
-			return;
+		if (this.state.district_highlighted === dp_id) {
+			this.filter_data(this.state.crime_type, this.state.crime_subtype, '565', this.state.year_selected);
+		} else {
+			this.filter_data(this.state.crime_type, this.state.crime_subtype, selected_dp_id, this.state.year_selected);
 		}
-		let new_highlighted = dp_id;
-		this.setState({ district_highlighted: new_highlighted });
-		console.log('new_highlighted: ', new_highlighted);
+	}
 
-		Object.entries(district_dict).map(([key, value]) => {
-			let path = document.getElementById(`path_${key}`);
-			path.style.stroke = '#23698b';
-			if (key === new_highlighted) {
-				let district_stat = this.state.violent_ranking.filter(item => item[0] == value)[0][1];
-				let color = this.find_color(district_stat);
+	isHovered(range_start, range_end) {
+		if (range_end) {
+			for (let item of this.state.violent_ranking) {
+				let district = districts_available[item[0]];
+				let dp_id = district.split(' DP - ')[0];
+
+				let district_stat = item[1];
+				let color = 'white';
+				if (district_stat > range_start && district_stat <= range_end) {
+					color = this.find_color(district_stat);
+				} else {
+					color = 'transparent';
+				}
+				let path = document.getElementById(`path_${dp_id}`);
 				path.style.fill = color;
-			} else if (key !== dp_id) {
-				path.style.fill = 'transparent';
+				path.style.stroke = '#23698b';
 			}
-		});
+		} else {
+			this.set_color();
+		}
 	}
 
 	render() {
-		// console.log('')
-		// console.log('most_violent_ranking_list: ', this.state.most_violent_ranking_list)
-		// console.log('less_violent_ranking_list: ', this.state.less_violent_ranking_list)
 		let range = this.state.highest_value < 16 ? 2 : this.state.highest_value / 8;
 		// Abbreaviate range
 		range = Math.floor(range);
@@ -501,47 +448,79 @@ class Home extends React.Component {
 					<div className='criminal-map-chart'>
 						<SPChart {...this.state} set_color={this.set_color} highlight_district={this.highlight_district} />
 						<div className='criminal-map-chart-legend'>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(0, range)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: 'white' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>0 a {range}</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range + 1, range * 2)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#ffd699' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range + 1} a {range * 2}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 2 + 1, range * 3)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#ffb74d' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range * 2 + 1} a {range * 3}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 3 + 1, range * 4)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#f29044' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range * 3 + 1} a {range * 4}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 4 + 1, range * 5)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#e5693b' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range * 4 + 1} a {range * 5}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 5 + 1, range * 6)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#f44336' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range * 5 + 1} a {range * 6}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 6 + 1, range * 7)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#a82424' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{range * 6 + 1} a {range * 7}
 								</div>
 							</div>
-							<div className='criminal-map-chart-legend-item'>
+							<div
+								className='criminal-map-chart-legend-item'
+								onMouseEnter={() => this.isHovered(range * 7 + 1, 50000000000)}
+								onMouseLeave={() => this.isHovered(false, false)}
+							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#761919' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
 									{'>'} {range * 7 + 1}

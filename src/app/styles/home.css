@@ -142,8 +142,6 @@
     cursor: pointer;
 }
 .criminal-map-chart path{
-    /* stroke: #78909c; */
-    /* stroke: #2b769b; */
     stroke: black;
     stroke-width: 1.5px !important;
     transition: all 0.2s ease-in-out;
@@ -157,8 +155,8 @@
 .criminal-map-chart-legend{
     position: absolute;
     right: 0;
-    bottom: 50px;
-    padding: 20px;
+    bottom: 30px;
+    padding: 16px;
     border: 1px solid #78909c;
 }
 .criminal-map-chart-legend-item{
@@ -166,6 +164,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    border: 1px solid transparent;
 }
 .criminal-map-chart-legend-item:nth-last-child(1){
     margin-bottom: 0;
@@ -178,4 +177,8 @@
 }
 .criminal-map-chart-legend-item-range{
     color: #f3f3f3;
+}
+.criminal-map-chart-legend-item:hover {
+    cursor: pointer;
+    border: 1px solid #f3f3f3;
 }
