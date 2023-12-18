@@ -191,3 +191,73 @@
     cursor: pointer;
     border: 1px solid #f3f3f3;
 }
+@media only screen and (max-width: 1100px) {
+    .criminal-map-main-header {
+        padding: 15px;
+        font-size: 25px;
+        text-align: center;
+    }
+    .criminal-map-stats {
+        margin: 15px 40px;
+    }
+    .criminal-map-main-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .criminal-map-chart {
+        width: 300px;
+        margin: 30px 0 0 0;
+    }
+    .criminal-map-chart-legend {
+        bottom: 30px;
+        padding: 6px;
+    }
+    .criminal-map-chart-legend-item-range {
+        font-size: 12px;
+    }
+    .criminal-map-chart-legend-item-square {
+        width: 19px;
+        height: 19px;
+        margin: 0 6px 0 0;
+    }
+    .criminal-map-stats-ranking {
+        margin: 15px;
+        flex-direction: column;
+    }
+    .criminal-map-stats-ranking-card {
+        width: 100%;
+    }
+    .criminal-map-stats-ranking-card:nth-child(1) {
+        margin: 0 0px 10px 0;
+    }
+    .criminal-map-stats-select {
+        justify-content: flex-start;
+        margin: 15px;
+        flex-direction: column;
+    }
+    .criminal-map-stats-select-neighborhood {
+        width: 100%;
+        margin: 0 0px 10px 0;
+    }
+    .criminal-map-stats-select .MuiInputBase-input {
+        padding: 10px;
+    }
+    .criminal-map-stats-select .MuiInputBase-input {
+        font-size: 15px;
+    }
+    .criminal-map-stats-select-year {
+        width: 100%;
+    }
+
+
+
+    .criminal-map-stats-options-buttons {
+        flex-wrap: wrap;
+    }
+    .criminal-map-stats-options-button-details {
+        padding: 11px 10px;
+        width: 100%;
+        line-height: 1.2;
+        font-size: 13px;viewport-fit: ;
+    }
+}
