@@ -1,8 +1,10 @@
 You can access here: [https://criminal-map.vercel.app](https://criminal-map.vercel.app/) 
 
-Have you ever wondered which neighborhood in the city of São Paulo, Brazil is the most dangerous? And which is the most safer? You can find the answer here on this interactive map. I retrieved official statistics from SSP ([State Secretariat for Public Security of São Paulo](https://www.ssp.sp.gov.br/)).
+An interactive and attractive panorama that exposes the crime numbers of the largest Brazilian metropolis. This application shows the city map and details of crimes in different categories in each neighborhood.
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+I retrieved official statistics from SSP ([State Secretariat for Public Security of São Paulo](https://www.ssp.sp.gov.br/)).
+
+This is a React and [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ![Screenshot from 2023-12-14 22-51-15](https://github.com/Edustartari/criminal-map/assets/47463985/77236a8c-4089-4e9c-992c-8eef68c62473)
 
