@@ -1,31 +1,31 @@
 export const crimes_type_list = [
     {
         key: 'All',
-        menu_title: 'Todos'
+        menu_title: 'All'
     },
     {
         key: 'ROUBO',
-        menu_title: 'Roubos'
+        menu_title: 'Robberies'
     },
     {
         key: 'FURTO',
-        menu_title: 'Furtos'
+        menu_title: 'Thefts'
     },
 	{
 		key: 'HOMICÍDIO',
-		menu_title: 'Homicídios'
+		menu_title: 'Homicides'
 	},
 	{
 		key: 'LESÃO',
-		menu_title: 'Lesões Corporais'
+		menu_title: 'Bodily Injuries'
 	},
 	{
 		key: 'ESTUPRO',
-		menu_title: 'Estupros'
+		menu_title: 'Sexual Assaults'
 	},
 	{
 		key: 'LATROCÍNIO',
-		menu_title: 'Latrocínios'
+		menu_title: 'Robberies Resulting in Death'
 	}
 ];
 
@@ -38,12 +38,12 @@ export const crimes_subtype_list = [
 	{
 		ssp_key: 'TOTAL DE ROUBO - OUTROS (1)',
 		key: 'ROUBO',
-		menu_title: 'Outros'
+		menu_title: 'Others'
 	},
 	{
 		ssp_key: 'ROUBO DE VEÍCULO',
 		key: 'ROUBO',
-		menu_title: 'Veículos'
+		menu_title: 'Vehicles'
 	},
 	{
 		ssp_key: 'All',
@@ -53,12 +53,12 @@ export const crimes_subtype_list = [
 	{
 		ssp_key: 'FURTO - OUTROS',
 		key: 'FURTO',
-		menu_title: 'Outros'
+		menu_title: 'Others'
 	},
 	{
 		ssp_key: 'FURTO DE VEÍCULO',
 		key: 'FURTO',
-		menu_title: 'Veículos'
+		menu_title: 'Vehicles'
 	},
     {
         ssp_key: 'All',
@@ -68,22 +68,22 @@ export const crimes_subtype_list = [
 	{
 		ssp_key: 'HOMICÍDIO DOLOSO (2)',
 		key: 'HOMICÍDIO',
-		menu_title: 'Dolosos'
+		menu_title: 'Intentional'
 	},
 	{
 		ssp_key: 'HOMICÍDIO CULPOSO POR ACIDENTE DE TRÂNSITO',
 		key: 'HOMICÍDIO',
-		menu_title: 'Culposos (Trânsito)'
+		menu_title: 'Culpable (Traffic)'
 	},
 	{
 		ssp_key: 'HOMICÍDIO CULPOSO OUTROS',
 		key: 'HOMICÍDIO',
-		menu_title: 'Culposos (outros)'
+		menu_title: 'Culpable (Others)'
 	},
 	{
 		ssp_key: 'TENTATIVA DE HOMICÍDIO',
 		key: 'HOMICÍDIO',
-		menu_title: 'Tentativa de Homicídio'
+		menu_title: 'Attempted Homicide'
 	},
 	{
 		ssp_key: 'All',
@@ -93,17 +93,17 @@ export const crimes_subtype_list = [
 	{
         ssp_key: 'LESÃO CORPORAL DOLOSA',
 		key: 'LESÃO',
-		menu_title: 'Dolosos'
+		menu_title: 'Intentional'
 	},
 	{
         ssp_key: 'LESÃO CORPORAL CULPOSA POR ACIDENTE DE TRÂNSITO',
 		key: 'LESÃO',
-		menu_title: 'Culposos (Trânsito)'
+		menu_title: 'Culpable (Traffic)'
 	},
 	{
         ssp_key: 'LESÃO CORPORAL CULPOSA - OUTRAS',
 		key: 'LESÃO',
-		menu_title: 'Culposos (Outros)'
+		menu_title: 'Culpable (Others)'
 	},
     {
         ssp_key: 'TOTAL DE ESTUPRO (4)',
