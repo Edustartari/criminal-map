@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-import numpy as np
 import os
 import json
 import time
@@ -14,12 +13,19 @@ import time
 # https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/RecuperaDadosMensaisAgrupados?ano=2002&grupoDelito=6&tipoGrupo=MUNIC%C3%8DPIO&idGrupo=565
 # https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/RecuperaDadosMensaisAgrupados?ano=2002&grupoDelito=6&tipoGrupo=DISTRITO&idGrupo=1410
 
-
+# Run scripts in the order below:
+# 1. scripts/import_ssp_sheets.py
+# 2. scripts/fix_decimals.py
+# 2. scripts/convert_sheet_into_json.py
 
 def import_sheets():
-	years = list(range(2001, 2024))
+	years = list(range(2023, 2026))
+
+	# Get path to assets folder, he is located at parent app level
+	assets_path = os.path.join(os.path.dirname(__file__), '../assets')
+
 	# Open districts.json file inside public folder
-	with open('assets/districts.json') as json_file:
+	with open(assets_path + '/districts.json') as json_file:
 		districts = json.load(json_file)
 
 	max_limit = 0
@@ -29,30 +35,37 @@ def import_sheets():
 		print(f'Importing {district_id}: {district_name}')
 
 		# If folder does not exist, create it
-		if not os.path.exists(f'assets/sheets/{district_id}'):
-			os.makedirs(f'assets/sheets/{district_id}')
+		if not os.path.exists(assets_path + f'/sheets/{district_id}'):
+			os.makedirs(assets_path + f'/sheets/{district_id}')
 
-			for year in years:
-				try:
-					print(year)
+		for year in years:
+			try:
+				print(year)
 
-					url = f'https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/ExportarMensal?ano={year}&grupoDelito=6&tipoGrupo=DISTRITO&idGrupo={district_id}'
-					response = requests.get(url)
+				if district_id == '565':
+					tipoGrupo = 'MUNIC%C3%8DPIO'
+				else:
+					tipoGrupo = 'DISTRITO'
 
-					df = pd.read_excel(response.content, engine='openpyxl')
-					df.to_csv(f'assets/sheets/{district_id}/{district_id}_{year}.csv', index=False)
-					
-					max_limit += 1
-					print('max_limit: ' + str(max_limit))
-					time.sleep(5)
+				url = f'https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/ExportarMensal?ano={year}&grupoDelito=6&tipoGrupo={tipoGrupo}&idGrupo={district_id}'
+				# url = f'https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/ExportarMensal?ano={year}&grupoDelito=6&tipoGrupo=DISTRITO&idGrupo={district_id}'
+				# url = https://www.ssp.sp.gov.br/v1/OcorrenciasMensais/ExportarMensal?ano=2023&grupoDelito=6&tipoGrupo=DISTRITO&idGrupo=1410
+				response = requests.get(url)
 
-					if max_limit == 150:
-						max_limit = 0
-						time.sleep(3600)
+				df = pd.read_excel(response.content, engine='openpyxl')
+				df.to_csv(assets_path + f'/sheets/{district_id}/{district_id}_{year}.csv', index=False)
+				
+				max_limit += 1
+				print('max_limit: ' + str(max_limit))
+				time.sleep(5)
 
-					# input('Press enter to continue...')
-				except Exception as e:
-					print(e)
+				if max_limit == 150:
+					max_limit = 0
+					time.sleep(3600)
+
+				# input('Press enter to continue...')
+			except Exception as e:
+				print(e)
 
 import_sheets()
 
