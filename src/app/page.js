@@ -33,8 +33,8 @@ Object.entries(districts_available).map(([key, value]) => {
 let districts_list = Object.entries(districts).sort((a, b) => a[1].localeCompare(b[1]));
 districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 
-// Create list of years since the year 2001 until 2023, and reverse it
-let years = _.range(2001, 2024).reverse();
+// Create list of years since the year 2001 until 2025, and reverse it
+let years = _.range(2001, 2026).reverse();
 
 class Home extends React.Component {
 	constructor(props) {
@@ -62,7 +62,7 @@ class Home extends React.Component {
 		this.filter_data();
 	}
 
-	filter_data(type = 'All', subtype = 'All', district = '565', year = 2023) {
+	filter_data(type = 'All', subtype = 'All', district = '565', year = 2025) {
 		// Fetch data from all districts (only from year selected) inside the folder where the json files are
 		let districts_data = {};
 		const req = require.context('../../assets/json', true, /\.json$/);

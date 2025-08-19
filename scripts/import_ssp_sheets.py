@@ -15,8 +15,8 @@ import time
 
 # Run scripts in the order below:
 # 1. scripts/import_ssp_sheets.py
-# 2. scripts/fix_decimals.py
 # 2. scripts/convert_sheet_into_json.py
+# 3. scripts/fix_decimals.py
 
 def import_sheets():
 	years = list(range(2023, 2026))
