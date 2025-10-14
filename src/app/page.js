@@ -11,6 +11,9 @@ import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
 import { crimes_type_list, crimes_subtype_list } from '@/app/crimes_lists.js';
 
+import Box from '@mui/material/Box';
+import { LineChart } from '@mui/x-charts/LineChart';
+
 function numberWithDots(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
@@ -35,6 +38,19 @@ districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 // Create list of years since the year 2001 until 2025, and reverse it
 let years = _.range(2001, 2026).reverse();
 
+const xLabels = [
+  '2016',
+  '2017',
+  '2018',
+  '2019',
+  '2020',
+  '2021',
+  '2022',
+  '2023',
+  '2024',
+  '2025',
+];
+
 const Home = () => {
   const [district_selected, setDistrictSelected] = useState('565');
   const [year_selected, setYearSelected] = useState(2023);
@@ -46,6 +62,8 @@ const Home = () => {
   const [less_violent_ranking_list, setLessViolentRankingList] = useState([]);
   const [highest_value, setHighestValue] = useState(0);
   const [district_highlighted, setDistrictHighlighted] = useState(false);
+  const [districtChartData, setDistrictChartData] = useState([]);
+  const [spChartData, setSpChartData] = useState([]);
 
   useEffect(() => {
     filter_data();
@@ -55,7 +73,7 @@ const Home = () => {
     set_color();
   }, [violent_ranking]);
 
-  const filter_data = (type = 'All', subtype = 'All', district = '565', year = 2025) => {
+  const format_data = (type = 'All', subtype = 'All', district = '565', year = 2025) => {
     // Fetch data from all districts (only from year selected) inside the folder where the json files are
     let districts_data = {};
     const req = require.context('../../assets/json', true, /\.json$/);
@@ -67,7 +85,6 @@ const Home = () => {
         districts_data[district_id] = req(key);
       }
     });
-
 
     // We'll create a list of lists with the district_id and the total of crimes for each one
     let violent_ranking_lst = [];
@@ -158,6 +175,29 @@ const Home = () => {
       }
     });
     let district_highlighted = district != '565' ? dp_id : false;
+
+    return { violent_ranking_lst, most_violent_ranking_list, less_violent_ranking_list, highest_value, district_highlighted };
+  }
+
+  const getLineChartData = (type, subtype, district, year) => {
+    let total_crimes_district = [];
+    let total_crimes_sp = [];
+    const last_ten_years = _.range(year - 9, year + 1);
+    for (let item of last_ten_years) {
+      const { violent_ranking_lst, most_violent_ranking_list, less_violent_ranking_list, highest_value, district_highlighted } = format_data(type, subtype, district, item);
+      total_crimes_sp.push(violent_ranking_lst.reduce((a, b) => a + b[1], 0));
+      if(district !== '565') {
+        total_crimes_district.push(violent_ranking_lst.reduce((a, b) => b[0] === district ? a + b[1] : a, 0));
+      }
+    }
+    setDistrictChartData(total_crimes_district);
+    setSpChartData(total_crimes_sp);
+  }
+
+  const filter_data = (type = 'All', subtype = 'All', district = '565', year = 2025) => {
+
+    const { violent_ranking_lst, most_violent_ranking_list, less_violent_ranking_list, highest_value, district_highlighted } = format_data(type, subtype, district, year);
+    getLineChartData(type, subtype, district, year);
 
     setDistrictSelected(district);
     setYearSelected(year);
@@ -258,6 +298,9 @@ const Home = () => {
   let range = highest_value < 16 ? 2 : highest_value / 8;
   // Abbreaviate range
   range = Math.floor(range);
+
+  const district_selected_name = district_selected in districts_available ? districts_available[district_selected].split('DP - ')[1] : '';
+
   return (
     <div className='criminal-map-main-background'>
       <div className='criminal-map-main-header'>Criminality Map of São Paulo</div>
@@ -422,7 +465,18 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className='criminal-map-stats-months'></div>
+          <div className='criminal-map-stats-months'>
+            <Box sx={{ width: '100%', height: 300 }}>
+              <LineChart
+                series={[                  
+                  { data: districtChartData.length > 0 ? districtChartData : spChartData, label: districtChartData.length > 0 ? district_selected_name : 'São Paulo' },
+                ]}
+                xAxis={[{ scaleType: 'point', data: xLabels, label: 'Year', labelProps: { fill: 'white' }, tickLabelProps: { fill: 'white' } }]}
+                yAxis={[{ width: 50 }]}
+                margin={{ right: 24 }}
+              />
+            </Box>
+          </div>
           <div className='criminal-map-stats-footer'>Source: Secretaria de Estado da Segurança Pública de São Paulo</div>
         </div>
         <div className='criminal-map-chart'>
