@@ -1,6 +1,5 @@
 'use client';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from '@/app/page.module.css';
 import '@/app/styles/home.css';
@@ -36,33 +35,27 @@ districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 // Create list of years since the year 2001 until 2025, and reverse it
 let years = _.range(2001, 2026).reverse();
 
-class Home extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			district_selected: '565',
-			year_selected: 2023,
-			districts_list: districts_list,
-			crime_type: 'All',
-			crime_subtype: 'All',
-			violent_ranking: [],
-			most_violent_ranking_list: [],
-			less_violent_ranking_list: [],
-			highest_value: 0,
-			district_highlighted: false
-		};
-		this.filter_data = this.filter_data.bind(this);
-		this.set_color = this.set_color.bind(this);
-		this.find_color = this.find_color.bind(this);
-		this.highlight_district = this.highlight_district.bind(this);
-		this.isHovered = this.isHovered.bind(this);
-	}
+const Home = () => {
+	const [district_selected, setDistrictSelected] = useState('565');
+	const [year_selected, setYearSelected] = useState(2023);
+	const [districts_list_state, setDistrictsListState] = useState(districts_list);
+	const [crime_type, setCrimeType] = useState('All');
+	const [crime_subtype, setCrimeSubtype] = useState('All');
+	const [violent_ranking, setViolentRanking] = useState([]);
+	const [most_violent_ranking_list, setMostViolentRankingList] = useState([]);
+	const [less_violent_ranking_list, setLessViolentRankingList] = useState([]);
+	const [highest_value, setHighestValue] = useState(0);
+	const [district_highlighted, setDistrictHighlighted] = useState(false);
 
-	componentDidMount() {
-		this.filter_data();
-	}
+	useEffect(() => {
+		filter_data();
+	}, []);
 
-	filter_data(type = 'All', subtype = 'All', district = '565', year = 2025) {
+	useEffect(() => {
+		set_color();
+	}, [violent_ranking]);
+
+	const filter_data = (type = 'All', subtype = 'All', district = '565', year = 2025) => {
 		// Fetch data from all districts (only from year selected) inside the folder where the json files are
 		let districts_data = {};
 		const req = require.context('../../assets/json', true, /\.json$/);
@@ -75,8 +68,9 @@ class Home extends React.Component {
 			}
 		});
 
+
 		// We'll create a list of lists with the district_id and the total of crimes for each one
-		let violent_ranking = [];
+		let violent_ranking_lst = [];
 		// Get all ssp_keys from crimes_list
 		let ssp_keys = crimes_subtype_list.map(item => item['ssp_key']);
 		Object.entries(districts_data).map(([key, value]) => {
@@ -99,12 +93,12 @@ class Home extends React.Component {
 					}
 				}
 			}
-			violent_ranking.push([key, total]);
+			violent_ranking_lst.push([key, total]);
 		});
 
-		violent_ranking.shift();
-		let most_violent_original = [...violent_ranking];
-		let less_violent_original = [...violent_ranking];
+		violent_ranking_lst.shift();
+		let most_violent_original = [...violent_ranking_lst];
+		let less_violent_original = [...violent_ranking_lst];
 		most_violent_original = most_violent_original.sort((a, b) => b[1] - a[1]);
 		less_violent_original = less_violent_original.sort((a, b) => a[1] - b[1]);
 
@@ -128,11 +122,11 @@ class Home extends React.Component {
 				}
 			}
 
-			let violent_ranking = {};
+			let violent_ranking_dict = {};
 			value.map(item => {
 				let dp = districts_available[item[0]].split(' - ')[1];
 				if (dp && violent.includes(item[0])) {
-					violent_ranking[item[0]] = {
+					violent_ranking_dict[item[0]] = {
 						rank: value.indexOf(item) + 1,
 						total: item[1],
 						district_name: dp
@@ -140,7 +134,7 @@ class Home extends React.Component {
 				}
 			});
 			// Order by rank
-			let violent_ranking_list = Object.entries(violent_ranking).sort((a, b) => a[1]['rank'] - b[1]['rank']);
+			let violent_ranking_list = Object.entries(violent_ranking_dict).sort((a, b) => a[1]['rank'] - b[1]['rank']);
 
 			return violent_ranking_list;
 		}
@@ -151,7 +145,7 @@ class Home extends React.Component {
 		// Get the highest value from the violent_ranking
 		let highest_value = Math.max.apply(
 			Math,
-			violent_ranking.map(function (o) {
+			violent_ranking_lst.map(function (o) {
 				return o[1];
 			})
 		);
@@ -165,37 +159,24 @@ class Home extends React.Component {
 		});
 		let district_highlighted = district != '565' ? dp_id : false;
 
-		this.state.violent_ranking = violent_ranking;
-		this.state.most_violent_ranking_list = most_violent_ranking_list;
-		this.state.less_violent_ranking_list = less_violent_ranking_list;
-		this.state.crime_type = type;
-		this.state.crime_subtype = subtype;
-		this.state.district_selected = district;
-		this.state.year_selected = year;
-		this.state.highest_value = highest_value;
-		this.state.district_highlighted = district_highlighted;
+		setDistrictSelected(district);
+		setYearSelected(year);
+		setCrimeType(type);
+		setCrimeSubtype(subtype);
+		setViolentRanking(violent_ranking_lst);
+		setMostViolentRankingList(most_violent_ranking_list);
+		setLessViolentRankingList(less_violent_ranking_list);
+		setHighestValue(highest_value);
+		setDistrictHighlighted(district_highlighted);
 
-		this.setState({
-			violent_ranking: violent_ranking,
-			most_violent_ranking_list: most_violent_ranking_list,
-			less_violent_ranking_list: less_violent_ranking_list,
-			crime_type: type,
-			crime_subtype: subtype,
-			district_selected: district,
-			year_selected: year,
-			highest_value: highest_value,
-			district_highlighted: district_highlighted
-		});
-
-		this.set_color();
 		if (district === '565') {
-			this.setState({ district_highlighted: false });
+			setDistrictHighlighted(false);
 		}
 	}
 
-	find_color(district_stat) {
+	const find_color = (district_stat) => {
 		let color = 'white';
-		if (this.state.highest_value < 16) {
+		if (highest_value < 16) {
 			if (district_stat <= 2) color = 'white';
 			else if (district_stat <= 4) color = '#ffd699';
 			else if (district_stat <= 6) color = '#ffb74d';
@@ -205,7 +186,7 @@ class Home extends React.Component {
 			else if (district_stat <= 15) color = '#a82424';
 			else if (district_stat > 15) color = '#761919';
 		} else {
-			let range = this.state.highest_value / 8;
+			let range = highest_value / 8;
 			range = Math.floor(range);
 			if (district_stat <= range) color = 'white';
 			else if (district_stat <= range * 2) color = '#ffd699';
@@ -220,48 +201,48 @@ class Home extends React.Component {
 		return color;
 	}
 
-	set_color() {
-		for (let item of this.state.violent_ranking) {
+	const set_color = () => {
+		for (let item of violent_ranking) {
 			let district = districts_available[item[0]];
 			let dp_id = district.split(' DP - ')[0];
 			let district_stat = item[1];
 			let color = 'white';
 
-			if (this.state.district_highlighted && this.state.district_selected !== item[0]) {
+			if (district_highlighted && district_selected !== item[0]) {
 				color = 'transparent';
 			} else {
-				color = this.find_color(district_stat);
+				color = find_color(district_stat);
 			}
 			let path = document.getElementById(`path_${dp_id}`);
 			path.style.fill = color;
-			path.style.stroke = this.state.district_highlighted ? '#23698b' : 'black';
+			path.style.stroke = district_highlighted ? '#23698b' : 'black';
 		}
 	}
 
-	highlight_district(dp_id) {
+	const highlight_district = (dp_id) => {
 		let selected_dp_id = '';
 		Object.entries(districts_available).map(([key, value]) => {
 			let district_id = value.split(' DP - ')[0];
 			if (district_id === dp_id) selected_dp_id = key;
 		});
 
-		if (this.state.district_highlighted === dp_id) {
-			this.filter_data(this.state.crime_type, this.state.crime_subtype, '565', this.state.year_selected);
+		if (district_highlighted === dp_id) {
+			filter_data(crime_type, crime_subtype, '565', year_selected);
 		} else {
-			this.filter_data(this.state.crime_type, this.state.crime_subtype, selected_dp_id, this.state.year_selected);
+			filter_data(crime_type, crime_subtype, selected_dp_id, year_selected);
 		}
 	}
 
-	isHovered(range_start, range_end) {
+	const isHovered = (range_start, range_end) => {
 		if (range_end) {
-			for (let item of this.state.violent_ranking) {
+			for (let item of violent_ranking) {
 				let district = districts_available[item[0]];
 				let dp_id = district.split(' DP - ')[0];
 
 				let district_stat = item[1];
 				let color = 'white';
 				if (district_stat > range_start && district_stat <= range_end) {
-					color = this.find_color(district_stat);
+					color = find_color(district_stat);
 				} else {
 					color = 'transparent';
 				}
@@ -270,12 +251,11 @@ class Home extends React.Component {
 				path.style.stroke = '#23698b';
 			}
 		} else {
-			this.set_color();
+			set_color();
 		}
 	}
 
-	render() {
-		let range = this.state.highest_value < 16 ? 2 : this.state.highest_value / 8;
+		let range = highest_value < 16 ? 2 : highest_value / 8;
 		// Abbreaviate range
 		range = Math.floor(range);
 		return (
@@ -290,9 +270,9 @@ class Home extends React.Component {
 										<div
 											key={index}
 											className='criminal-map-stats-options-button-details'
-											style={this.state.crime_type === item['key'] ? { backgroundColor: '#c62828' } : {}}
+											style={crime_type === item['key'] ? { backgroundColor: '#c62828' } : {}}
 											onClick={() =>
-												this.filter_data(item['key'], 'All', this.state.district_selected, this.state.year_selected)
+												filter_data(item['key'], 'All', district_selected, year_selected)
 											}
 										>
 											{item['menu_title']}
@@ -302,19 +282,19 @@ class Home extends React.Component {
 							</div>
 							<div className='criminal-map-stats-options-button-secondary'>
 								{crimes_subtype_list.map((item, index) => {
-									if (item['key'] !== this.state.crime_type) return;
+									if (item['key'] !== crime_type) return;
 									else if (item['key'] === 'LATROCÍNIO' || item['key'] === 'ESTUPRO') return;
 									return (
 										<div
 											key={index}
 											className='criminal-map-stats-options-button-details'
-											style={this.state.crime_subtype === item['ssp_key'] ? { backgroundColor: '#c62828' } : {}}
+											style={crime_subtype === item['ssp_key'] ? { backgroundColor: '#c62828' } : {}}
 											onClick={() =>
-												this.filter_data(
+												filter_data(
 													item['key'],
 													item['ssp_key'],
-													this.state.district_selected,
-													this.state.year_selected
+													district_selected,
+													year_selected
 												)
 											}
 										>
@@ -330,17 +310,17 @@ class Home extends React.Component {
 									<Select
 										labelId='demo-simple-select-label'
 										id='demo-simple-select'
-										value={this.state.district_selected}
+										value={district_selected}
 										onChange={e =>
-											this.filter_data(
-												this.state.crime_type,
-												this.state.crime_subtype,
+											filter_data(
+												crime_type,
+												crime_subtype,
 												e.target.value,
-												this.state.year_selected
+												year_selected
 											)
 										}
 									>
-										{this.state.districts_list.map(item => {
+										{districts_list_state.map(item => {
 											return (
 												<MenuItem key={item[0]} value={item[0]}>
 													{item[1]}
@@ -355,12 +335,12 @@ class Home extends React.Component {
 									<Select
 										labelId='demo-simple-select-label'
 										id='demo-simple-select'
-										value={this.state.year_selected}
+										value={year_selected}
 										onChange={e =>
-											this.filter_data(
-												this.state.crime_type,
-												this.state.crime_subtype,
-												this.state.district_selected,
+											filter_data(
+												crime_type,
+												crime_subtype,
+												district_selected,
 												e.target.value
 											)
 										}
@@ -380,22 +360,22 @@ class Home extends React.Component {
 							<div className='criminal-map-stats-ranking-card'>
 								<div className='criminal-map-stats-ranking-card-title'>MOST VIOLENT</div>
 								<div className='criminal-map-stats-ranking-card-list'>
-									{this.state.most_violent_ranking_list.slice(0, 5).map((item, index) => {
-										let select_district = this.state.district_selected === item[0] ? '565' : item[0];
+									{most_violent_ranking_list.slice(0, 5).map((item, index) => {
+										let select_district = district_selected === item[0] ? '565' : item[0];
 										return (
 											<div
 												key={item[0]}
 												className='criminal-map-stats-ranking-card-list-item'
-												style={this.state.district_selected === item[0] ? { color: 'gold' } : {}}
+												style={district_selected === item[0] ? { color: 'gold' } : {}}
 											>
 												<div
 													className='criminal-map-stats-ranking-card-list-item-title'
 													onClick={() =>
-														this.filter_data(
-															this.state.crime_type,
-															this.state.crime_subtype,
+														filter_data(
+															crime_type,
+															crime_subtype,
 															select_district,
-															this.state.year_selected
+															year_selected
 														)
 													}
 												>
@@ -412,22 +392,22 @@ class Home extends React.Component {
 							<div className='criminal-map-stats-ranking-card'>
 								<div className='criminal-map-stats-ranking-card-title'>LESS VIOLENT</div>
 								<div className='criminal-map-stats-ranking-card-list'>
-									{this.state.less_violent_ranking_list.slice(0, 5).map((item, index) => {
-										let select_district = this.state.district_selected === item[0] ? '565' : item[0];
+									{less_violent_ranking_list.slice(0, 5).map((item, index) => {
+										let select_district = district_selected === item[0] ? '565' : item[0];
 										return (
 											<div
 												key={item[0]}
 												className='criminal-map-stats-ranking-card-list-item'
-												style={this.state.district_selected === item[0] ? { color: 'gold' } : {}}
+												style={district_selected === item[0] ? { color: 'gold' } : {}}
 											>
 												<div
 													className='criminal-map-stats-ranking-card-list-item-title'
 													onClick={() =>
-														this.filter_data(
-															this.state.crime_type,
-															this.state.crime_subtype,
+														filter_data(
+															crime_type,
+															crime_subtype,
 															select_district,
-															this.state.year_selected
+															year_selected
 														)
 													}
 												>
@@ -446,20 +426,20 @@ class Home extends React.Component {
 						<div className='criminal-map-stats-footer'>Source: Secretaria de Estado da Segurança Pública de São Paulo</div>
 					</div>
 					<div className='criminal-map-chart'>
-						<SPChart {...this.state} set_color={this.set_color} highlight_district={this.highlight_district} />
+						<SPChart set_color={set_color} highlight_district={highlight_district} />
 						<div className='criminal-map-chart-legend'>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(0, range)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(0, range)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: 'white' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>0 a {range}</div>
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range + 1, range * 2)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range + 1, range * 2)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#ffd699' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -468,8 +448,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 2 + 1, range * 3)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 2 + 1, range * 3)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#ffb74d' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -478,8 +458,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 3 + 1, range * 4)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 3 + 1, range * 4)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#f29044' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -488,8 +468,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 4 + 1, range * 5)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 4 + 1, range * 5)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#e5693b' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -498,8 +478,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 5 + 1, range * 6)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 5 + 1, range * 6)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#f44336' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -508,8 +488,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 6 + 1, range * 7)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 6 + 1, range * 7)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#a82424' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -518,8 +498,8 @@ class Home extends React.Component {
 							</div>
 							<div
 								className='criminal-map-chart-legend-item'
-								onMouseEnter={() => this.isHovered(range * 7 + 1, 50000000000)}
-								onMouseLeave={() => this.isHovered(false, false)}
+								onMouseEnter={() => isHovered(range * 7 + 1, 50000000000)}
+								onMouseLeave={() => isHovered(false, false)}
 							>
 								<div className='criminal-map-chart-legend-item-square' style={{ backgroundColor: '#761919' }}></div>
 								<div className='criminal-map-chart-legend-item-range'>
@@ -531,7 +511,6 @@ class Home extends React.Component {
 				</div>
 			</div>
 		);
-	}
 }
 
 export default Home;
