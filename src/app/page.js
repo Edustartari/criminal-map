@@ -55,7 +55,7 @@ const xLabels = [
 
 const Home = () => {
   const [district_selected, setDistrictSelected] = useState('565');
-  const [year_selected, setYearSelected] = useState(2023);
+  const [year_selected, setYearSelected] = useState(2025);
   const [districts_list_state, setDistrictsListState] = useState(districts_list);
   const [crime_type, setCrimeType] = useState('All');
   const [crime_subtype, setCrimeSubtype] = useState('All');
@@ -185,7 +185,7 @@ const Home = () => {
   const getLineChartData = (type, subtype, district, year) => {
     let total_crimes_district = [];
     let total_crimes_sp = [];
-    const last_ten_years = _.range(year - 9, year + 1);
+    const last_ten_years = _.range(2025 - 9, 2025 + 1);
     for (let item of last_ten_years) {
       const { violent_ranking_lst, most_violent_ranking_list, less_violent_ranking_list, highest_value, district_highlighted } = format_data(type, subtype, district, item);
       total_crimes_sp.push(violent_ranking_lst.reduce((a, b) => a + b[1], 0));
