@@ -5,6 +5,8 @@ import styles from '@/app/page.module.css';
 import '@/app/styles/home.css';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import { CircularProgress } from '@mui/material';
+import { Backdrop } from '@mui/material';
 import Select from '@mui/material/Select';
 import _ from 'lodash';
 import districts_available from '../../assets/districts_available.json';
@@ -64,6 +66,7 @@ const Home = () => {
   const [district_highlighted, setDistrictHighlighted] = useState(false);
   const [districtChartData, setDistrictChartData] = useState([]);
   const [spChartData, setSpChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     filter_data();
@@ -212,6 +215,7 @@ const Home = () => {
     if (district === '565') {
       setDistrictHighlighted(false);
     }
+    setLoading(false);
   }
 
   const find_color = (district_stat) => {
@@ -471,9 +475,27 @@ const Home = () => {
                 series={[                  
                   { data: districtChartData.length > 0 ? districtChartData : spChartData, label: districtChartData.length > 0 ? district_selected_name : 'São Paulo' },
                 ]}
-                xAxis={[{ scaleType: 'point', data: xLabels, label: 'Year', labelProps: { fill: 'white' }, tickLabelProps: { fill: 'white' } }]}
-                yAxis={[{ width: 50 }]}
+                xAxis={[{ 
+                  scaleType: 'point', 
+                  data: xLabels, 
+                  label: 'Year', 
+                  tickLabelStyle: { fontSize: 12, fill: 'white', fontWeight: 'bold' },
+                  labelStyle: { fontSize: 16, fill: 'white' },
+                }]}
+                slotProps={{
+                  legend: {
+                    sx: {
+                      fontSize: 14,
+                      color: 'white',
+                    },
+                  },
+                }}
+                yAxis={[{
+                  width: 55,
+                  tickLabelStyle: { fontSize: 12, color: 'white', fill: 'white' },
+                }]}
                 margin={{ right: 24 }}
+                colors={[ districtChartData.length > 0 ? '#ffb74d' : '#4254fb']}
               />
             </Box>
           </div>
@@ -563,6 +585,13 @@ const Home = () => {
           </div>
         </div>
       </div>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }}
+        open={loading}
+        className='backdrop-loading'
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </div>
   );
 }
