@@ -1,4 +1,4 @@
-  name: ESLint check 
+  name: CI flow 
   
   on:
     push:
@@ -38,7 +38,7 @@
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: 'npm'
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
 
       # - name: Setup Pages
       #   uses: actions/configure-pages@v5
