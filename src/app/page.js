@@ -69,7 +69,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    filter_data();
+    filter_data(;
   }, []);
 
   useEffect(() => {
