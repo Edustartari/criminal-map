@@ -68,8 +68,6 @@ const Home = () => {
   const [spChartData, setSpChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  let edu = 0;
-
   useEffect(() => {
     filter_data();
   }, []);
