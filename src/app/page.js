@@ -5,7 +5,6 @@ import styles from '@/app/page.module.css';
 import '@/app/styles/home.css';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import { CircularProgress } from '@mui/material';
 import { Backdrop } from '@mui/material';
 import Select from '@mui/material/Select';
 import _ from 'lodash';
@@ -69,7 +68,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    filter_data(;
+    filter_data();
   }, []);
 
   useEffect(() => {
