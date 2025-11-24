@@ -41,11 +41,6 @@
           path: ./node_modules 
           key: npm-${{ hashFiles('./package-lock.json') }} 
 
-      - name: Install dependencies 
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: | 
-          npm install
-
       - name: Install Node.js dependencies 
         # This IF condition checks if the step with id ‘cache-restore’ was successful in finding the cache or not. If successful, it will skip npm ci step otherwise execute it.
         if: steps.cache-restore.outputs.cache-hit != 'true' 
