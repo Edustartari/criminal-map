@@ -43,3 +43,7 @@
       - name: Lint 
         run: | 
           npm run lint
+
+      - name: Trigger Vercel Deploy
+        run: |
+          curl -X POST https://api.vercel.com/v1/integrations/deploy/${{secrets.VERCEL_DEPLOY_HOOK}}
