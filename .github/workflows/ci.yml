@@ -49,6 +49,7 @@
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: Dockerfile-live
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/criminal-map:${{ github.run_number }}
 
