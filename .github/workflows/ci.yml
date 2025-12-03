@@ -16,34 +16,12 @@
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
+      - name: Build Docker image
+        run: docker build -t criminal-map -f Dockerfile-live .
 
-      # This creates a cache key. ‘hashFiles’ generates SHA256 hash of ‘package-lock.json ‘ file in the repository. We create this key to ensure that if the package-lock.json file is changed, a new cache will be created.
-      - name: Restore cached dependencies 
-        id: cache-restore 
-        uses: actions/cache@v3 
-        with: 
-          # If node_modules is inside src, modify it to ./src/node_modules
-          path: ./node_modules 
-          key: npm-${{ hashFiles('./package-lock.json') }} 
+      - name: Run lint inside Docker
+        run: docker run --rm criminal-map npm run lint
 
-      - name: Install Node.js dependencies 
-        # This IF condition checks if the step with id ‘cache-restore’ was successful in finding the cache or not. If successful, it will skip npm ci step otherwise execute it.
-        if: steps.cache-restore.outputs.cache-hit != 'true' 
-        # If node_modules is inside src, add command below cd src
-        run: | 
-          npm ci - ignore-scripts 
-
-      - name: Build with Next.js
-        run: npm run build
-    
-      - name: Lint 
-        run: | 
-          npm run lint
-
-      - name: Trigger Vercel Deploy
-        run: |
-          curl -X POST https://api.vercel.com/v1/integrations/deploy/${{secrets.VERCEL_DEPLOY_HOOK}}
+      # - name: Trigger Vercel Deploy
+      #   run: |
+      #     curl -X POST https://api.vercel.com/v1/integrations/deploy/${{secrets.VERCEL_DEPLOY_HOOK}}
