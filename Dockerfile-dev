@@ -1,0 +1,29 @@
+# Use official Node.js LTS image
+FROM node:24-bullseye
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install
+
+############################################################
+# Build Docker image:
+# docker build -t criminal-map-dev -f Dockerfile-dev .
+
+# Create Docker container for development:
+# docker run -it -d --name criminal-map-container-dev -p 3001:3001 -v $PWD:/app criminal-map-dev
+
+# Enter Docker container (open a bash):
+# docker exec -it criminal-map-container-dev /bin/bash
+
+# Other useful commands:
+# List running containers:
+# docker ps
+
+# Stop the container:
+# docker stop criminal-map-container-dev
+
+# Remove the container:
+# docker rm criminal-map-container-dev

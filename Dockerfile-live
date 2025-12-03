@@ -1,0 +1,39 @@
+# Use official Node.js LTS image
+FROM node:24-bullseye
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the Next.js app
+RUN npm run build
+
+# Expose the port Next.js runs on
+EXPOSE 3000
+
+# Start the Next.js app
+CMD ["npm", "start"]
+
+
+############################################################
+# Build Docker image:
+# docker build -t criminal-map -f Dockerfile-live .
+
+# Create Docker container for development:
+# docker run -d --name criminal-map-container -p 3000:3000 criminal-map
+
+# Other useful commands:
+# List running containers:
+# docker ps -a
+
+# Stop the container:
+# docker stop criminal-map-container
+
+# Remove the container:
+# docker rm criminal-map-container
