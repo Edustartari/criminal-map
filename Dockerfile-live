@@ -25,10 +25,12 @@ CMD ["npm", "start"]
 # Build Docker image:
 # docker build -t criminal-map -f Dockerfile-live .
 
-# Create Docker container for development:
+# Run Docker container:
 # docker run -d --name criminal-map-container -p 3000:3000 criminal-map
 
-# Other useful commands:
+# Enter Docker container (open a bash):
+# docker exec -it criminal-map-container /bin/bash
+
 # List running containers:
 # docker ps -a
 
