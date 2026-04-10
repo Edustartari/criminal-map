@@ -37,14 +37,14 @@
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Log in to DockerHub
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Publish image into Docker Hub
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -53,6 +53,6 @@
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/criminal-map:${{ github.run_number }}
 
       - name: Trigger Vercel Deploy
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           curl -X POST https://api.vercel.com/v1/integrations/deploy/${{secrets.VERCEL_DEPLOY_HOOK}}
