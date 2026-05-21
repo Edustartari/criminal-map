@@ -1,17 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import '@/app/styles/home.css';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import { CircularProgress } from '@mui/material';
-import { Backdrop } from '@mui/material';
-import Select from '@mui/material/Select';
+import { MenuItem, FormControl, CircularProgress, Backdrop, Select, Box } from '@mui/material';
+import { LineChart } from '@mui/x-charts/LineChart';
 import _ from 'lodash';
 import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
 import { crimes_type_list, crimes_subtype_list } from '@/app/crimes_lists.js';
-import Box from '@mui/material/Box';
-import { LineChart } from '@mui/x-charts/LineChart';
 import { xLabels } from '@/app/constants/index.js';
 
 function numberWithDots(x) {
