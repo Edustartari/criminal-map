@@ -1,7 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import styles from '@/app/page.module.css';
 import '@/app/styles/home.css';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -12,15 +10,13 @@ import _ from 'lodash';
 import districts_available from '../../assets/districts_available.json';
 import SPChart from '@/app/sp_chart.js';
 import { crimes_type_list, crimes_subtype_list } from '@/app/crimes_lists.js';
-
 import Box from '@mui/material/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { xLabels } from '@/app/constants/index.js';
 
 function numberWithDots(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
-
-const legend_colors = ['#fff7eb', '#ffd699', '#ffb74d', '#f29044', '#e5693b', '#f44336', '#a82424', '#761919', '#400d0d'];
 
 // Format districts_available.json to a more readable format
 let districts = {};
@@ -40,23 +36,9 @@ districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 // Create list of years since the year 2001 until 2025, and reverse it
 let years = _.range(2001, 2026).reverse();
 
-const xLabels = [
-  '2016',
-  '2017',
-  '2018',
-  '2019',
-  '2020',
-  '2021',
-  '2022',
-  '2023',
-  '2024',
-  '2025',
-];
-
 const Home = () => {
   const [district_selected, setDistrictSelected] = useState('565');
   const [year_selected, setYearSelected] = useState(2025);
-  const [districts_list_state, setDistrictsListState] = useState(districts_list);
   const [crime_type, setCrimeType] = useState('All');
   const [crime_subtype, setCrimeSubtype] = useState('All');
   const [violent_ranking, setViolentRanking] = useState([]);
@@ -367,7 +349,7 @@ const Home = () => {
                     )
                   }
                 >
-                  {districts_list_state.map(item => {
+                  {districts_list.map(item => {
                     return (
                       <MenuItem key={item[0]} value={item[0]}>
                         {item[1]}
@@ -407,7 +389,7 @@ const Home = () => {
             <div className='criminal-map-stats-ranking-card'>
               <div className='criminal-map-stats-ranking-card-title'>MOST VIOLENT</div>
               <div className='criminal-map-stats-ranking-card-list'>
-                {most_violent_ranking_list.slice(0, 5).map((item, index) => {
+                {most_violent_ranking_list.slice(0, 5).map((item) => {
                   let select_district = district_selected === item[0] ? '565' : item[0];
                   return (
                     <div
@@ -439,7 +421,7 @@ const Home = () => {
             <div className='criminal-map-stats-ranking-card'>
               <div className='criminal-map-stats-ranking-card-title'>LESS VIOLENT</div>
               <div className='criminal-map-stats-ranking-card-list'>
-                {less_violent_ranking_list.slice(0, 5).map((item, index) => {
+                {less_violent_ranking_list.slice(0, 5).map((item) => {
                   let select_district = district_selected === item[0] ? '565' : item[0];
                   return (
                     <div
