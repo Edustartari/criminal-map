@@ -19,7 +19,7 @@ import time
 # 3. scripts/fix_decimals.py
 
 def import_sheets():
-	years = list(range(2023, 2026))
+	years = list(range(2025, 2026))
 
 	# Get path to assets folder, he is located at parent app level
 	assets_path = os.path.join(os.path.dirname(__file__), '../assets')

@@ -28,8 +28,12 @@ Object.entries(districts_available).map(([key, value]) => {
 let districts_list = Object.entries(districts).sort((a, b) => a[1].localeCompare(b[1]));
 districts_list.unshift(['565', 'ALL POLICE DISTRICTS']);
 
-// Create list of years since the year 2001 until 2025, and reverse it
-let years = _.range(2001, 2026).reverse();
+// Create list of years since the year 2001 until 2025
+let years = [];
+for (let year = 2001; year <= 2025; year++) {
+  years.push(year);
+}
+years.reverse();
 
 const Home = () => {
   const [district_selected, setDistrictSelected] = useState('565');
@@ -449,7 +453,7 @@ const Home = () => {
           <div className='criminal-map-stats-months'>
             <Box sx={{ width: '100%', height: 300 }}>
               <LineChart
-                series={[                  
+                series={[
                   { data: districtChartData.length > 0 ? districtChartData : spChartData, label: districtChartData.length > 0 ? district_selected_name : 'São Paulo' },
                 ]}
                 xAxis={[{ 
